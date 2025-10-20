@@ -52,24 +52,63 @@ let averagePerCategory items =
     |> List.groupBy (fun m -> m.Fach)
     |> List.map (fun (fach, marks) -> fach, (marks |> List.averageBy (fun m -> float m.Note)))
 
+let isPassedMark (note: float) =
+    note >= 4.0
+
 // ---------- App-Start ----------
-printfn "Wilkommen zu dem Notenrechner"
+//printfn "Wilkommen zu dem Notenrechner"
 
 // Laden oder erstellen falls es nicht gibt (Seed)
 let items =
     match Storage.load () with
     | [] ->
-        printfn "Keine Daten gefunden – schreibe Seed nach data/marks.json"
+        printfn "Keine Daten gefunden - schreibe Seed (test daten) nach data/marks.json"
         Storage.save seed
         seed
     | xs ->
-        printfn "Daten geladen"
+        //printfn "Daten vom Speicher geladen"
         xs
 
-printItems items
-printfn "---- Durchschnitt pro Fach ----"
-averagePerCategory items |> List.iter (fun (fach, avg) -> printfn $"{fach}: {avg:F2}")
+let args = Environment.GetCommandLineArgs() |> Array.skip 1
 
-// test
-let items' = { Name = "Vocab Test 3"; Note = 5.3m; Fach = "Englisch" } :: items
-Storage.save items'
+let printHelp () =
+    printfn """
+Verwendung:
+    list                       Zeigt alle gespeicherten Noten an
+    add <Name> <Note> <Fach>   Fügt eine neue Note hinzu
+    remove <Name>              Entfernt eine Note nach Name
+    stats                      Zeigt Durchschnitt pro Fach
+    help                       Zeigt diese Hilfe
+"""
+
+if args.Length = 0 then
+    printfn "Keine Parameter angegeben."
+    printHelp()
+else
+    match args.[0].ToLower() with
+    | "list" ->
+        printItems items
+    | "add" when args.Length = 4 ->
+        let name = args.[1]
+        // abbruch wenn name schon existiert
+        if items |> List.exists (fun m -> String.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase)) then
+            printfn "Eintrag mit Namen '%s' existiert bereits. Abbruch." name
+        else
+            let newItem = { Name = name; Note = decimal args.[2]; Fach = args.[3] }
+            let updated = newItem :: items
+            Storage.save updated
+            printfn "Hinzugefügt: %s (%s) %M" newItem.Name newItem.Fach newItem.Note
+    | "remove" when args.Length = 2 ->
+        let updated = items |> List.filter (fun m -> m.Name <> args.[1])
+        Storage.save updated
+        printfn "Entfernt (falls vorhanden): %s" args.[1]
+    | "stats" ->
+        printfn "Durchschnitt pro Fach:"
+        averagePerCategory items |> List.iter (fun (fach, avg) ->
+            let status = if isPassedMark avg then "" else "Nicht "
+            printfn "%s: %0.2f (%sBestanden)" fach avg status)
+    | "help" ->
+        printHelp()
+    | _ ->
+        printfn "Ungültige Parameter oder unzureichende Argumente"
+        printHelp()
