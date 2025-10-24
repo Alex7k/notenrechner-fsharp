@@ -33,9 +33,9 @@ module Storage =
 // test data
 module Factory =
     let createInitialMarks () : Mark list =
-        [ { Name = "Vektoren";           Note = 4.2m; Fach = "Mathe" }
-          { Name = "Potenzen";           Note = 4.8m; Fach = "Mathe" }
-          { Name = "Logarithmen";        Note = 3.5m; Fach = "Mathe" }
+        [ { Name = "Vektoren";           Note = 4.2m; Fach = "Mathematik" }
+          { Name = "Potenzen";           Note = 4.8m; Fach = "Mathematik" }
+          { Name = "Logarithmen";        Note = 3.5m; Fach = "Mathematik" }
           { Name = "Kinematik";          Note = 2.3m; Fach = "Physik" }
           { Name = "Elektrotechnik";     Note = 3.7m; Fach = "Physik" }
           { Name = "Druck";              Note = 4.0m; Fach = "Physik" }
