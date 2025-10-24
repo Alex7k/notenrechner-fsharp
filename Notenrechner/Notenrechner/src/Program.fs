@@ -56,6 +56,22 @@ let averagePerCategory items =
 let isPassedMark (note: float) =
     note >= 4.0
 
+// ---------- Strategy ----------
+type PassStrategy = float -> bool
+
+module Strategy =
+    let passByThreshold threshold : PassStrategy =
+        fun note -> note >= threshold
+
+    let forSubject =
+        function
+        | "Mathe"     -> passByThreshold 4.0
+        | "Physik"    -> passByThreshold 4.0
+        | "Deutsch"   -> passByThreshold 4.0
+        | "Englisch"  -> passByThreshold 4.0
+        | "Informatik"-> passByThreshold 4.0
+        | _           -> passByThreshold 4.0
+
 // ---------- App-Start ----------
 //printfn "Wilkommen zu dem Notenrechner"
 
@@ -107,7 +123,8 @@ else
     | "stats" ->
         printfn "Durchschnitt pro Fach:"
         averagePerCategory items |> List.iter (fun (fach, avg) ->
-            let status = if isPassedMark avg then "" else "Nicht "
+            let passed = Strategy.forSubject fach avg
+            let status = if passed then "" else "Nicht "
             printfn "%s: %0.2f (%sBestanden)" fach avg status)
     | "help" ->
         printHelp()
