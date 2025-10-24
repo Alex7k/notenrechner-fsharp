@@ -31,17 +31,18 @@ module Storage =
             []
 
 // test data
-let seed : Mark list =
-    [ { Name = "Vektoren";           Note = 4.2m; Fach = "Mathe" }
-      { Name = "Potenzen";           Note = 4.8m; Fach = "Mathe" }
-      { Name = "Logarithmen";        Note = 3.5m; Fach = "Mathe" }
-      { Name = "Kinematik";          Note = 2.3m; Fach = "Physik" }
-      { Name = "Elektrotechnik";     Note = 3.7m; Fach = "Physik" }
-      { Name = "Druck";              Note = 4.0m; Fach = "Physik" }
-      { Name = "Terror";             Note = 3.2m; Fach = "Deutsch" }
-      { Name = "Die Schwarze Spinne";Note = 1.2m; Fach = "Deutsch" }
-      { Name = "Vocab Test 1";       Note = 5.0m; Fach = "Englisch" }
-      { Name = "Vocab Test 2";       Note = 5.5m; Fach = "Englisch" } ]
+module Factory =
+    let createInitialMarks () : Mark list =
+        [ { Name = "Vektoren";           Note = 4.2m; Fach = "Mathe" }
+          { Name = "Potenzen";           Note = 4.8m; Fach = "Mathe" }
+          { Name = "Logarithmen";        Note = 3.5m; Fach = "Mathe" }
+          { Name = "Kinematik";          Note = 2.3m; Fach = "Physik" }
+          { Name = "Elektrotechnik";     Note = 3.7m; Fach = "Physik" }
+          { Name = "Druck";              Note = 4.0m; Fach = "Physik" }
+          { Name = "Terror";             Note = 3.2m; Fach = "Deutsch" }
+          { Name = "Die Schwarze Spinne";Note = 1.2m; Fach = "Deutsch" }
+          { Name = "Vocab Test 1";       Note = 5.0m; Fach = "Englisch" }
+          { Name = "Vocab Test 2";       Note = 5.5m; Fach = "Englisch" } ]
 
 // showing
 let printItems items =
@@ -62,7 +63,8 @@ let isPassedMark (note: float) =
 let items =
     match Storage.load () with
     | [] ->
-        printfn "Keine Daten gefunden - schreibe Seed (test daten) nach data/marks.json"
+        printfn "Keine Daten gefunden - schreibe Seed (dummy daten) nach data/marks.json"
+        let seed = Factory.createInitialMarks ()
         Storage.save seed
         seed
     | xs ->
