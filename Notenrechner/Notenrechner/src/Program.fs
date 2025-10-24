@@ -92,11 +92,13 @@ let args = Environment.GetCommandLineArgs() |> Array.skip 1
 let printHelp () =
     printfn """
 Verwendung:
-    list                       Zeigt alle gespeicherten Noten an
+    list (Fach)                Zeigt liste gespeicherten Noten an, optional nach Fach gefiltert
     add <Name> <Note> <Fach>   Fügt eine neue Note hinzu
     remove <Name>              Entfernt eine Note nach Name
     stats                      Zeigt Durchschnitt pro Fach
     help                       Zeigt diese Hilfe
+<> - Obligatorisch
+() - Optional
 """
 
 if args.Length = 0 then
