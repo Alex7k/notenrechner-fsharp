@@ -107,7 +107,12 @@ if args.Length = 0 then
 else
     match args.[0].ToLower() with
     | "list" ->
-        printItems items
+        if args.Length = 2 then
+            let fach = args.[1]
+            let filtered = items |> List.filter (fun m -> m.Fach.Equals(fach, StringComparison.OrdinalIgnoreCase))
+            printItems filtered
+        else
+            printItems items
     | "add" when args.Length = 4 ->
         let name = args.[1]
         // abbruch wenn name schon existiert
