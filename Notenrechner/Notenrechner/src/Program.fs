@@ -30,6 +30,35 @@ module Storage =
         else
             []
 
+// Observer (log)
+module Observer =
+    let private logFile = Path.Combine("data", "log.txt")
+
+    let private ensureDir () =
+        Directory.CreateDirectory(Path.GetDirectoryName(logFile)) |> ignore
+
+    let private append (msg: string) =
+        ensureDir ()
+        let timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        let entry = $"{timestamp} - {msg}{Environment.NewLine}"
+        File.AppendAllText(logFile, entry)
+
+    let notify msg =
+        printfn "%s" msg
+        append msg
+
+    let showLog () =
+        ensureDir ()
+        if File.Exists(logFile) then
+            let lines = File.ReadAllLines(logFile)
+            if lines.Length = 0 then
+                printfn "Logdatei ist leer."
+            else
+                printfn "--- Log ---"
+                lines |> Array.iter (printfn "%s")
+        else
+            printfn "Keine Logdatei gefunden."
+
 // test data
 module Factory =
     let createInitialMarks () : Mark list =
@@ -56,7 +85,7 @@ let averagePerCategory items =
 let isPassedMark (note: float) =
     note >= 4.0
 
-// ---------- Strategy ----------
+// Strategy
 type PassStrategy = float -> bool
 
 module Strategy =
@@ -72,7 +101,7 @@ module Strategy =
         | "Informatik"-> passByThreshold 4.0
         | _           -> passByThreshold 4.0
 
-// ---------- App-Start ----------
+// App-Start
 //printfn "Wilkommen zu dem Notenrechner"
 
 // Laden oder erstellen falls es nicht gibt (Seed)
@@ -95,7 +124,8 @@ Verwendung:
     list (Fach)                Zeigt liste gespeicherten Noten an, optional nach Fach gefiltert
     add <Name> <Note> <Fach>   Fügt eine neue Note hinzu
     remove <Name>              Entfernt eine Note nach Name
-    stats                      Zeigt Durchschnitt pro Fach
+    stats                      Zeigt Durchschnitt pro Fach an
+    log                        Zeigt den Log an
     help                       Zeigt diese Hilfe
 <> - Obligatorisch
 () - Optional
@@ -115,18 +145,19 @@ else
             printItems items
     | "add" when args.Length = 4 ->
         let name = args.[1]
-        // abbruch wenn name schon existiert
         if items |> List.exists (fun m -> String.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase)) then
             printfn "Eintrag mit Namen '%s' existiert bereits. Abbruch." name
         else
             let newItem = { Name = name; Note = decimal args.[2]; Fach = args.[3] }
             let updated = newItem :: items
             Storage.save updated
-            printfn "Hinzugefügt: %s (%s) %M" newItem.Name newItem.Fach newItem.Note
+            Observer.notify (sprintf "Hinzugefügt: %s (%s) %M" newItem.Name newItem.Fach newItem.Note)
+
     | "remove" when args.Length = 2 ->
-        let updated = items |> List.filter (fun m -> m.Name <> args.[1])
+        let target = args.[1]
+        let updated = items |> List.filter (fun m -> m.Name <> target)
         Storage.save updated
-        printfn "Entfernt (falls vorhanden): %s" args.[1]
+        Observer.notify (sprintf "Entfernt (falls vorhanden): %s" target)
     | "stats" ->
         let roundTo n =
             let factor = Math.Pow(10.0, float n)
@@ -140,7 +171,10 @@ else
             let rounded = round2 avg
             let passed = Strategy.forSubject fach avg
             let status = if passed then "" else "Nicht "
-            printfn "%s: %0.2f (%sBestanden)" fach rounded status)
+            printfn "%s: %0.2f (%sBestanden)" fach avg status)
+    | "log" ->
+        Observer.showLog()
+
     | "help" ->
         printHelp()
     | _ ->

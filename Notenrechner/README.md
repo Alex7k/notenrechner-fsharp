@@ -15,7 +15,8 @@ Verwendung:
     list (Fach)                Zeigt liste gespeicherten Noten an, optional nach Fach gefiltert
     add <Name> <Note> <Fach>   Fügt eine neue Note hinzu
     remove <Name>              Entfernt eine Note nach Name
-    stats                      Zeigt Durchschnitt pro Fach
+    stats                      Zeigt Durchschnitt pro Fach an
+    log                        Zeigt den Log an
     help                       Zeigt diese Hilfe
 <> - Obligatorisch
 () - Optional
