@@ -1,6 +1,14 @@
 # Notenrechner AM
 
-## Verwendung
+## Einrichtung
+
+1. [dotnet (9.0)](https://dotnet.microsoft.com/en-us/download) installieren
+1. Im PowerShell Terminal zum repo root navigieren
+1. ```cd .\Notenrechner``` 
+1. ```dotnet build```
+1. ```dotnet run -- [Argumente]```
+
+## Argumente
 
 ```txt
 Verwendung:
@@ -16,14 +24,14 @@ Verwendung:
 ### Beispiele
 
 ```ps1
-Notenrechner.exe list
-Notenrechner.exe list Mathematik # Nach Fach filtrieren
+Notenrechner list
+Notenrechner list Mathematik # Nach Fach filtrieren
 
-Notenrechner.exe add "FP Notenrechner Projekt M323" 6.0 "Informatik"
+Notenrechner add "FP Notenrechner Projekt M323" 6.0 "Informatik"
 
-Notenrechner.exe remove "FP Notenrechner Projekt M323"
+Notenrechner remove "FP Notenrechner Projekt M323"
 
-Notenrechner.exe stats
+Notenrechner stats
 
-Notenrechner.exe help
+Notenrechner help
 ```
