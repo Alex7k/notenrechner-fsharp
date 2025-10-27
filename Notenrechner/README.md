@@ -1,5 +1,9 @@
 # Notenrechner AM
 
+## Einführung
+
+Der Notenrechner ist ein Kommandozeilen-Tool zur Verwaltung von Schulnoten. Er ermöglicht das Hinzufügen, Entfernen und Anzeigen von Noten sowie die Berechnung von Statistiken.
+
 ## Einrichtung
 
 1. [dotnet (9.0)](https://dotnet.microsoft.com/en-us/download) installieren
