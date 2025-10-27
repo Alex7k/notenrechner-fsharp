@@ -6,6 +6,11 @@ open System.Text.Json.Serialization
 
 type Mark = { Name: string; Note: decimal; Fach: string }
 
+let ensureDirFor (path: string) =
+    Path.GetDirectoryName(path)
+    |> Directory.CreateDirectory
+    |> ignore
+
 // persistence
 module Storage =
     let private file = Path.Combine("data", "marks.json")
@@ -15,11 +20,8 @@ module Storage =
         o.Converters.Add(JsonFSharpConverter())
         o
 
-    let ensureDir () =
-        Directory.CreateDirectory(Path.GetDirectoryName(file)) |> ignore
-
     let save (marks: Mark list) =
-        ensureDir ()
+        ensureDirFor (file)
         let json = JsonSerializer.Serialize(marks, opts)
         File.WriteAllText(file, json)
 
@@ -38,7 +40,7 @@ module Observer =
         Directory.CreateDirectory(Path.GetDirectoryName(logFile)) |> ignore
 
     let private append (msg: string) =
-        ensureDir ()
+        ensureDirFor (logFile)
         let timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
         let entry = $"{timestamp} - {msg}{Environment.NewLine}"
         File.AppendAllText(logFile, entry)
