@@ -150,6 +150,10 @@ else
         else
             printItems items
     | "add" when args.Length = 4 ->
+        let note = decimal args.[2]
+        if note < 1.0m || note > 6.0m then
+            printfn "Die Note muss zwischen 1.0 und 6.0 liegen."
+        else
         let name = args.[1]
         if items |> List.exists (fun m -> String.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase)) then
             printfn "Eintrag mit Namen '%s' existiert bereits. Abbruch." name
