@@ -6,10 +6,16 @@ open System.Text.Json.Serialization
 
 type Mark = { Name: string; Note: decimal; Fach: string }
 
+// helpers
+
 let ensureDirFor (path: string) =
     Path.GetDirectoryName(path)
     |> Directory.CreateDirectory
     |> ignore
+
+let roundTo n =
+    let factor = Math.Pow(10.0, float n)
+    fun (x: float) -> Math.Round(x * factor) / factor
 
 // persistence
 module Storage =
@@ -106,6 +112,19 @@ let rec countPassed (marks: Mark list) =
     | m :: rest ->
         let passed = if (Strategy.forSubject m.Fach) (float m.Note) then 1 else 0
         passed + countPassed rest
+
+// Decorator
+module Decorator =
+    type MarkDecorator = Mark -> Mark
+
+    let rounded (decimals: int) : MarkDecorator =
+        fun m ->
+            let round = roundTo decimals
+            let roundedNote = decimal (round (float m.Note))
+            { m with Note = roundedNote }
+
+    let compose (decorators: MarkDecorator list) : MarkDecorator =
+        decorators |> List.reduce (>>)
 
 // App-Start
 //printfn "Wilkommen zu dem Notenrechner"
