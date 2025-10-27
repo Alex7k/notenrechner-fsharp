@@ -13,9 +13,9 @@ let ensureDirFor (path: string) =
     |> Directory.CreateDirectory
     |> ignore
 
-let roundTo n =
-    let factor = Math.Pow(10.0, float n)
-    fun (x: float) -> Math.Round(x * factor) / factor
+let roundTo step =
+    fun (x: float) ->
+        Math.Round(x / step, MidpointRounding.AwayFromZero) * step
 
 // persistence
 module Storage =
@@ -117,9 +117,9 @@ let rec countPassed (marks: Mark list) =
 module Decorator =
     type MarkDecorator = Mark -> Mark
 
-    let rounded (decimals: int) : MarkDecorator =
+    let rounded (step: float) : MarkDecorator =
         fun m ->
-            let round = roundTo decimals
+            let round = roundTo step
             let roundedNote = decimal (round (float m.Note))
             { m with Note = roundedNote }
 
@@ -188,28 +188,29 @@ else
         Storage.save updated
         Observer.notify (sprintf "Entfernt (falls vorhanden): %s" target)
     | "stats" ->
-        let roundTo n =
-            let factor = Math.Pow(10.0, float n)
-            fun (x: float) -> Math.Round(x * factor) / factor
+        // rounding decorator
+        let roundDecorator = Decorator.rounded 0.5
+        let roundedItems = items |> List.map roundDecorator
 
-        let passedCount = countPassed items
-        printfn "Bestande Prüfungen: %d von %d" passedCount items.Length
+        let passedCount = countPassed roundedItems
+        printfn "Bestande Prüfungen (nach Rundung): %d von %d" passedCount roundedItems.Length
 
         let overallAverage =
-            items
+            roundedItems
             |> List.fold (fun acc m -> acc + float m.Note) 0.0
-            |> fun total -> total / float items.Length
+            |> fun total -> total / float roundedItems.Length
 
-        printfn "Gesamtdurchschnitt: %.2f" overallAverage
+        printfn "Gesamtdurchschnitt (gerundet): %.2f" overallAverage
 
-        let round2 = roundTo 2
+        let roundHalf = roundTo 0.5
         printfn "Durchschnitt pro Fach:"
         averagePerCategory items
         |> List.iter (fun (fach, avg) ->
-            let rounded = round2 avg
-            let passed = (Strategy.forSubject fach) avg
+            let rounded = roundHalf avg
+            let passed = (Strategy.forSubject fach) rounded
             let status = if passed then "" else "Nicht "
-            printfn "  %s: %0.2f (%sBestanden)" fach rounded status)
+            printfn "  %s: %.2f (%.1f gerundet) -> %sBestanden"
+                fach avg rounded status)
 
     | "log" ->
         Observer.showLog()
