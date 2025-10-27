@@ -36,9 +36,6 @@ module Storage =
 module Observer =
     let private logFile = Path.Combine("data", "log.txt")
 
-    let private ensureDir () =
-        Directory.CreateDirectory(Path.GetDirectoryName(logFile)) |> ignore
-
     let private append (msg: string) =
         ensureDirFor (logFile)
         let timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
@@ -50,7 +47,7 @@ module Observer =
         append msg
 
     let showLog () =
-        ensureDir ()
+        ensureDirFor (logFile)
         if File.Exists(logFile) then
             let lines = File.ReadAllLines(logFile)
             if lines.Length = 0 then
