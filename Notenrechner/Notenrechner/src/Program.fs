@@ -163,13 +163,13 @@ else
             let factor = Math.Pow(10.0, float n)
             fun (x: float) -> Math.Round(x * factor) / factor
 
-        let round2 = roundTo 2 // (closure)
+        let round2 = roundTo 2
 
         printfn "Durchschnitt pro Fach:"
         averagePerCategory items
         |> List.iter (fun (fach, avg) ->
             let rounded = round2 avg
-            let passed = Strategy.forSubject fach avg
+            let passed = (Strategy.forSubject fach) avg
             let status = if passed then "" else "Nicht "
             printfn "%s: %0.2f (%sBestanden)" fach avg status)
     | "log" ->
