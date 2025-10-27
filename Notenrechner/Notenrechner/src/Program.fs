@@ -176,6 +176,13 @@ else
         let passedCount = countPassed items
         printfn "Bestande Prüfungen: %d von %d" passedCount items.Length
 
+        let overallAverage =
+            items
+            |> List.fold (fun acc m -> acc + float m.Note) 0.0
+            |> fun total -> total / float items.Length
+
+        printfn "Gesamtdurchschnitt: %.2f" overallAverage
+
         let round2 = roundTo 2
         printfn "Durchschnitt pro Fach:"
         averagePerCategory items
