@@ -101,6 +101,13 @@ module Strategy =
         | "Informatik"-> passByThreshold 4.0
         | _           -> passByThreshold 4.0
 
+let rec countPassed (marks: Mark list) =
+    match marks with
+    | [] -> 0
+    | m :: rest ->
+        let passed = if (Strategy.forSubject m.Fach) (float m.Note) then 1 else 0
+        passed + countPassed rest
+
 // App-Start
 //printfn "Wilkommen zu dem Notenrechner"
 
@@ -163,15 +170,18 @@ else
             let factor = Math.Pow(10.0, float n)
             fun (x: float) -> Math.Round(x * factor) / factor
 
-        let round2 = roundTo 2
+        let passedCount = countPassed items
+        printfn "Bestande Prüfungen: %d von %d" passedCount items.Length
 
+        let round2 = roundTo 2
         printfn "Durchschnitt pro Fach:"
         averagePerCategory items
         |> List.iter (fun (fach, avg) ->
             let rounded = round2 avg
             let passed = (Strategy.forSubject fach) avg
             let status = if passed then "" else "Nicht "
-            printfn "%s: %0.2f (%sBestanden)" fach avg status)
+            printfn "  %s: %0.2f (%sBestanden)" fach rounded status)
+
     | "log" ->
         Observer.showLog()
 
