@@ -4,12 +4,14 @@
 
 Der Notenrechner ist ein Kommandozeilen-Tool zur Verwaltung von Schulnoten. Er ermöglicht das Hinzufügen, Entfernen und Anzeigen von Noten sowie die Berechnung von Statistiken.
 
+Dieses Programm ist mit Windows 11 Home getestet worden.
+
 ## Einrichtung
 
 1. [dotnet (9.0)](https://dotnet.microsoft.com/en-us/download) installieren
 1. Im PowerShell Terminal zum repo root navigieren
-1. ```cd .\Notenrechner```
-1. ```dotnet build```
+1. ```cd .\Notenrechner\Notenrechner```
+1. (```dotnet build```)
 1. ```dotnet run -- [Argumente]```
 
 ## Argumente
@@ -29,14 +31,22 @@ Verwendung:
 ### Beispiele
 
 ```ps1
-Notenrechner list
-Notenrechner list Mathematik # Nach Fach filtrieren
+dotnet run -- list
+dotnet run -- list Mathematik # Nach Fach filtrieren
 
-Notenrechner add "FP Notenrechner Projekt M323" 6.0 "Informatik"
+dotnet run -- add "FP Notenrechner Projekt M323" 6.0 "Informatik"
 
-Notenrechner remove "FP Notenrechner Projekt M323"
+dotnet run -- remove "FP Notenrechner Projekt M323"
 
-Notenrechner stats
+dotnet run -- stats
 
-Notenrechner help
+dotnet run -- help
 ```
+
+### Hinweis
+
+Um alle gespeicherten Daten zurückzusetzen, kann der Ordner `data` gelöscht werden.
+
+### Fun fact
+
+Daten werden in .\Notenrechner\Notenrechner\data gespeichert.
