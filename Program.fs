@@ -4,7 +4,7 @@ open System.Text.Json
 open FSharp.SystemTextJson
 open System.Text.Json.Serialization
 
-type Mark = { Name: string; Note: decimal; Fach: string }
+type Mark = { Name: string; Note: decimal; Subject: string }
 
 // helpers
 
@@ -57,35 +57,35 @@ module Observer =
         if File.Exists(logFile) then
             let lines = File.ReadAllLines(logFile)
             if lines.Length = 0 then
-                printfn "Logdatei ist leer."
+                printfn "Log file is empty."
             else
                 printfn "--- Log ---"
                 lines |> Array.iter (printfn "%s")
         else
-            printfn "Keine Logdatei gefunden."
+            printfn "Log file not found."
 
 // test data
 module Factory =
     let createInitialMarks () : Mark list =
-        [ { Name = "Vektoren";           Note = 4.2m; Fach = "Mathematik" }
-          { Name = "Potenzen";           Note = 4.8m; Fach = "Mathematik" }
-          { Name = "Logarithmen";        Note = 3.5m; Fach = "Mathematik" }
-          { Name = "Kinematik";          Note = 2.3m; Fach = "Physik" }
-          { Name = "Elektrotechnik";     Note = 3.7m; Fach = "Physik" }
-          { Name = "Druck";              Note = 4.0m; Fach = "Physik" }
-          { Name = "Terror";             Note = 3.2m; Fach = "Deutsch" }
-          { Name = "Die Schwarze Spinne";Note = 1.2m; Fach = "Deutsch" }
-          { Name = "Vocab Test 1";       Note = 5.0m; Fach = "Englisch" }
-          { Name = "Vocab Test 2";       Note = 5.5m; Fach = "Englisch" } ]
+        [ { Name = "Vektoren";           Note = 4.2m; Subject = "Math" }
+          { Name = "Potenzen";           Note = 4.8m; Subject = "Math" }
+          { Name = "Logarithmen";        Note = 3.5m; Subject = "Math" }
+          { Name = "Kinematik";          Note = 2.3m; Subject = "Physics" }
+          { Name = "Elektrotechnik";     Note = 3.7m; Subject = "Physics" }
+          { Name = "Druck";              Note = 4.0m; Subject = "Physics" }
+          { Name = "Terror";             Note = 3.2m; Subject = "German" }
+          { Name = "Die Schwarze Spinne";Note = 1.2m; Subject = "German" }
+          { Name = "Vocab Test 1";       Note = 5.0m; Subject = "English" }
+          { Name = "Vocab Test 2";       Note = 5.5m; Subject = "English" } ]
 
 // showing
 let printItems items =
-    items |> List.iter (fun m -> printfn "%s (%s): %M" m.Name m.Fach m.Note)
+    items |> List.iter (fun m -> printfn "%s (%s): %M" m.Name m.Subject m.Note)
 
 let averagePerCategory items =
     items
-    |> List.groupBy (fun m -> m.Fach)
-    |> List.map (fun (fach, marks) -> fach, (marks |> List.averageBy (fun m -> float m.Note)))
+    |> List.groupBy (fun m -> m.Subject)
+    |> List.map (fun (subject, marks) -> subject, (marks |> List.averageBy (fun m -> float m.Note)))
 
 let isPassedMark (note: float) =
     note >= 4.0
@@ -97,20 +97,21 @@ module Strategy =
     let passByThreshold threshold : PassStrategy =
         fun note -> note >= threshold
 
+    // define custom passing threshholds
     let forSubject =
         function
-        | "Mathe"     -> passByThreshold 4.0
-        | "Physik"    -> passByThreshold 4.0
-        | "Deutsch"   -> passByThreshold 4.0
-        | "Englisch"  -> passByThreshold 4.0
-        | "Informatik"-> passByThreshold 4.0
-        | _           -> passByThreshold 4.0
+        | "Math"             -> passByThreshold 4.0
+        | "Physics"          -> passByThreshold 4.0
+        | "German"           -> passByThreshold 4.0
+        | "English"          -> passByThreshold 4.0
+        | "Computer Science" -> passByThreshold 4.0
+        | _                  -> passByThreshold 4.0
 
 let rec countPassed (marks: Mark list) =
     match marks with
     | [] -> 0
     | m :: rest ->
-        let passed = if (Strategy.forSubject m.Fach) (float m.Note) then 1 else 0
+        let passed = if (Strategy.forSubject m.Subject) (float m.Note) then 1 else 0
         passed + countPassed rest
 
 // Decorator
@@ -127,90 +128,89 @@ module Decorator =
         decorators |> List.reduce (>>)
 
 // App-Start
-//printfn "Wilkommen zu dem Notenrechner"
 
-// Laden oder erstellen falls es nicht gibt (Seed)
+// Load or create if doesn't already exist (seeding)
 let items =
     match Storage.load () with
     | [] ->
-        printfn "Keine Daten gefunden - schreibe Seed (dummy daten) nach data/marks.json"
+        printfn "No data found - writing seed (dummy data) to data/marks.json"
         let seed = Factory.createInitialMarks ()
         Storage.save seed
         seed
     | xs ->
-        //printfn "Daten vom Speicher geladen"
+        //printfn "Data loaded from storage"
         xs
 
 let args = Environment.GetCommandLineArgs() |> Array.skip 1
 
 let printHelp () =
     printfn """
-Verwendung:
-    list (Fach)                Zeigt liste gespeicherten Noten an, optional nach Fach gefiltert
-    add <Name> <Note> <Fach>   Fügt eine neue Note hinzu
-    remove <Name>              Entfernt eine Note nach Name
-    stats                      Zeigt Durchschnitt pro Fach an
-    log                        Zeigt den Log an
-    help                       Zeigt diese Hilfe
-<> - Obligatorisch
+Usage:
+    list (Subject)               Shows list of stored marks, optionally filtered by subject
+    add <Name> <Mark> <Subject>  Adds a new mark
+    remove <Name>                Removes a mark by name
+    stats                        Shows average per subject
+    log                          Shows the log
+    help                         Shows this help
+<> - Required
 () - Optional
 """
 
 if args.Length = 0 then
-    printfn "Keine Parameter angegeben."
+    printfn "No parameters given."
     printHelp()
 else
     match args.[0].ToLower() with
     | "list" ->
         if args.Length = 2 then
-            let fach = args.[1]
-            let filtered = items |> List.filter (fun m -> m.Fach.Equals(fach, StringComparison.OrdinalIgnoreCase))
+            let subject = args.[1]
+            let filtered = items |> List.filter (fun m -> m.Subject.Equals(subject, StringComparison.OrdinalIgnoreCase))
             printItems filtered
         else
             printItems items
     | "add" when args.Length = 4 ->
         let note = decimal args.[2]
         if note < 1.0m || note > 6.0m then
-            printfn "Die Note muss zwischen 1.0 und 6.0 liegen."
+            printfn "The mark must be between 1.0 and 6.0."
         else
         let name = args.[1]
         if items |> List.exists (fun m -> String.Equals(m.Name, name, StringComparison.OrdinalIgnoreCase)) then
-            printfn "Eintrag mit Namen '%s' existiert bereits. Abbruch." name
+            printfn "Entry '%s' already exists. Exiting." name
         else
-            let newItem = { Name = name; Note = decimal args.[2]; Fach = args.[3] }
+            let newItem = { Name = name; Note = decimal args.[2]; Subject = args.[3] }
             let updated = newItem :: items
             Storage.save updated
-            Observer.notify (sprintf "Hinzugefügt: %s (%s) %M" newItem.Name newItem.Fach newItem.Note)
+            Observer.notify (sprintf "Added: %s (%s) %M" newItem.Name newItem.Subject newItem.Note)
 
     | "remove" when args.Length = 2 ->
         let target = args.[1]
         let updated = items |> List.filter (fun m -> m.Name <> target)
         Storage.save updated
-        Observer.notify (sprintf "Entfernt (falls vorhanden): %s" target)
+        Observer.notify (sprintf "Removed (if existed): %s" target)
     | "stats" ->
         // rounding decorator
         let roundDecorator = Decorator.rounded 0.5
         let roundedItems = items |> List.map roundDecorator
 
         let passedCount = countPassed roundedItems
-        printfn "Bestande Prüfungen (nach Rundung): %d von %d" passedCount roundedItems.Length
+        printfn "Passed exams (post rounding): %d out of %d" passedCount roundedItems.Length
 
         let overallAverage =
             roundedItems
             |> List.fold (fun acc m -> acc + float m.Note) 0.0
             |> fun total -> total / float roundedItems.Length
 
-        printfn "Gesamtdurchschnitt (gerundet): %.2f" overallAverage
+        printfn "Total average (rounded): %.2f" overallAverage
 
         let roundHalf = roundTo 0.5
-        printfn "Durchschnitt pro Fach:"
+        printfn "Average per subject:"
         averagePerCategory items
-        |> List.iter (fun (fach, avg) ->
+        |> List.iter (fun (subject, avg) ->
             let rounded = roundHalf avg
-            let passed = (Strategy.forSubject fach) rounded
-            let status = if passed then "" else "Nicht "
-            printfn "  %s: %.2f (%.1f gerundet) -> %sBestanden"
-                fach avg rounded status)
+            let passed = (Strategy.forSubject subject) rounded
+            let status = if passed then "Passed" else "Failed"
+            printfn "  %s: %.2f (%.1f rounded) -> %s"
+                subject avg rounded status)
 
     | "log" ->
         Observer.showLog()
@@ -218,5 +218,5 @@ else
     | "help" ->
         printHelp()
     | _ ->
-        printfn "Ungültige Parameter oder unzureichende Argumente"
+        printfn "Invalid parameter or insufficient arguments."
         printHelp()

@@ -1,52 +1,49 @@
-# Notenrechner AM
+# Grade Calculator
 
-## Einführung
+## Introduction
 
-Der Notenrechner ist ein Kommandozeilen-Tool zur Verwaltung von Schulnoten. Er ermöglicht das Hinzufügen, Entfernen und Anzeigen von Noten sowie die Berechnung von Statistiken.
+The Grade Calculator is a command-line tool for managing school grades. It allows adding, removing, and displaying grades, as well as calculating statistics.
 
-Dieses Programm ist mit Windows 11 Home getestet worden.
+This program is intended to be used for the swiss school system, which uses grades from 1.0 (worst) to 6.0 (best). A grade of 4.0 or higher is considered passing.
 
-## Einrichtung
+This program has been tested on Windows 11 Home + Enterprise.
 
-1. [dotnet (9.0)](https://dotnet.microsoft.com/en-us/download) installieren
-1. Im PowerShell Terminal zum repo root navigieren
-1. ```cd .\Notenrechner\Notenrechner```
-1. (```dotnet build```)
-1. ```dotnet run -- [Argumente]```
+## Setup
 
-## Argumente
+1. Install [dotnet (9.0)](https://dotnet.microsoft.com/en-us/download)
+1. Clone this repository
+1. In PowerShell, navigate to the repository root
+1. `dotnet run -- [arguments]`
+
+## Arguments
 
 ```txt
-Verwendung:
-    list (Fach)                Zeigt liste gespeicherten Noten an, optional nach Fach gefiltert
-    add <Name> <Note> <Fach>   Fügt eine neue Note hinzu
-    remove <Name>              Entfernt eine Note nach Name
-    stats                      Zeigt Durchschnitt pro Fach an
-    log                        Zeigt den Log an
-    help                       Zeigt diese Hilfe
-<> - Obligatorisch
+Usage:
+    list (Subject)               Shows list of stored marks, optionally filtered by subject
+    add <Name> <Mark> <Subject>  Adds a new mark
+    remove <Name>                Removes a mark by name
+    stats                        Shows average per subject
+    log                          Shows the log
+    help                         Shows this help
+<> - Required
 () - Optional
 ```
 
-### Beispiele
+### Examples
 
 ```ps1
 dotnet run -- list
-dotnet run -- list Mathematik # Nach Fach filtrieren
+dotnet run -- list Math # Filter by subject
 
-dotnet run -- add "FP Notenrechner Projekt M323" 6.0 "Informatik"
+dotnet run -- add "FP Grade Calculator Project M323" 6.0 "Computer Science"
 
-dotnet run -- remove "FP Notenrechner Projekt M323"
+dotnet run -- remove "FP Grade Calculator Project M323"
 
 dotnet run -- stats
 
 dotnet run -- help
 ```
 
-### Hinweis
+### Note
 
-Um alle gespeicherten Daten zurückzusetzen, kann der Ordner `data` gelöscht werden.
-
-### Mehr Informationen
-
-Daten werden in .\Notenrechner\Notenrechner\data gespeichert.
+To reset all saved data, delete the `data` folder.
