@@ -47,6 +47,6 @@ dotnet run -- help
 
 Um alle gespeicherten Daten zurückzusetzen, kann der Ordner `data` gelöscht werden.
 
-### Fun fact
+### Mehr Informationen
 
 Daten werden in .\Notenrechner\Notenrechner\data gespeichert.
