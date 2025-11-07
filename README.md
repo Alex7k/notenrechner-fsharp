@@ -8,6 +8,8 @@ This program is intended to be used for the swiss school system, which uses grad
 
 This program has been tested on Windows 11 Home + Enterprise.
 
+I created this project to learn F# and functional programming concepts. That's why I use so many different FP techniques.
+
 ## Setup
 
 1. Install [dotnet (9.0)](https://dotnet.microsoft.com/en-us/download)
